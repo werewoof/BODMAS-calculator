@@ -62,9 +62,15 @@ def next():
     INDEX += 1
     return _text[INDEX]
 
-def putback():
+def back():
     global INDEX
     INDEX -= 1
+    return _text[INDEX]
+
+def putback():
+    c = back()
+    while c == ' ' or c == '\t' or c == '\r' or c == '\f':
+        c = back()
 
 def skip() -> str:
     c = next()
@@ -93,7 +99,7 @@ def scan(t : token) -> bool:
         case '-':
             t.token = T_MINUS
         case '*':
-            if next() == '*':
+            if skip() == '*':
                 t.token = T_DSTAR
             else:
                 putback()
@@ -189,6 +195,8 @@ def interpretAST(n : ASTnode) -> int:
     elif n.op == A_POWER:
         return leftval ** rightval
     elif n.op == A_ROOT:
+        if rightval == 0:
+            raise CalculatorException(f"Power of zero doesnt work")
         return leftval ** (1/rightval)
     elif n.op == A_MOD:
         return leftval % rightval
